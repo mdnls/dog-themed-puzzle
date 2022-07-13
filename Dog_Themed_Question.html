@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" />
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+  <style>
+    #draggable {
+      cursor: help;
+    }
+    text {
+      -webkit-touch-callout: none;
+      -webkit-user-select:none;
+      -khtml-user-select:none;
+      -moz-user-select:none;
+      -ms-user-select:none;
+      -o-user-select:none;
+      user-select:none;
+      z-index: -1;
+    }
+    a {
+      text-decoration: underline;
+    }
+    a:hover {
+      cursor: help;
+    }
+  </style>
+</head>
+<body>
+  <svg style="width: 100vw; height: 100vh;" id="dots_svg">
+    <text x="120" y="200" id="line1">This question is about <a href="Dogs.pdf" target="_blank">dogs</a>.</text>
+    <text x="240" y="245" id="line2"><a href="But Which Dog.pdf" target="_blank">But which dog</a>?</text>
+    <ellipse cx="200" cy="200" rx="150" ry="150" style="fill: black;" id="draggable" />
+  </svg>
+   <script>
+    var offset1 = [-100, 0];
+    var offset2 = [20, 45];
+    var offset3 = [0, 0];
+    var width = $("body").width();
+    var height = $("body").height();
+    var loc = [width/2, height/2];
+
+    $("#line1").attr("x", loc[0] + offset1[0]);
+    $("#line1").attr("y", loc[1] + offset1[1]);
+    $("#line2").attr("x", loc[0] + offset2[0]);
+    $("#line2").attr("y", loc[1] + offset2[1]);
+    $("#draggable").attr("cx", loc[0]);
+    $("#draggable").attr("cy", loc[1]);
+
+    function randInt(max) {
+      return Math.floor(Math.random() * max);
+    }
+    function randSign(max) { 
+      if(Math.random() > 0.5) {
+        return 1;
+      } else {
+        return -1;
+      }
+    }
+    var nEllipse = 5;
+    var maxRadii = 100;
+    var minRadii = 30;
+    var ellipseRadii = Array.from({length: nEllipse}, () => randInt(maxRadii - minRadii) + minRadii);
+    var ellipseCenters = ellipseRadii.map((r) =>
+      [loc[0] + randSign() * (randInt(width/2 - maxRadii) + maxRadii),
+      loc[1] + randSign() * (randInt(height/2 - maxRadii) + maxRadii)]);
+    
+    for(var i = 0; i < ellipseCenters.length; i = i + 1) {
+      $("#dots_svg").append(`<ellipse cx="${ellipseCenters[i][0]}" cy="${ellipseCenters[i][1]}" rx="${ellipseRadii[i]}" ry="${ellipseRadii[i]}" style="fill: black; position: relative;" />`)
+    }
+    document.getElementById("dots_svg").innerHTML += "";
+
+    $('#draggable') 
+  .draggable()
+  .bind('mousedown', function(event, ui){
+    // bring target to front
+    $(event.target.parentElement).append( event.target );
+  })
+  .bind('drag', function(event, ui){
+    // update coordinates manually, since top/left style props don't work on SVG
+    event.target.setAttribute('cx', ui.position.left + loc[0]);
+    event.target.setAttribute('cy', ui.position.top + loc[1]);
+  });
+  </script>
+</body>
+</html>
